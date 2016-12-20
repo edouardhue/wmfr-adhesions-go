@@ -3,27 +3,51 @@ package main
 import (
 	"net/http"
 	"encoding/json"
-	"fmt"
 	"os"
+	"log"
 )
 
-const url = "https://crm.wikimedia.fr"
-
-type searchResponse struct {
-
+type SearchResponse struct {
+	IsError bool `json:"isError" binding:"required"`
+	Version int `json:"version" binding:"required"`
+	Count int `json:"count" binding:"required"`
+	Id int `json:"id"`
 }
 
-func SearchContact(email string) {
-	if resp, err := http.DefaultClient.Get(url); err != nil {
-		fmt.Fprintln(os.Stderr, "Error contacting CiviCRM", err)
+func buildSearchContactQuery(email string) (*http.Request, error) {
+	req, err := http.NewRequest("GET", os.Getenv("CIVI_URL"), nil)
+	if err != nil {
+		return req, err
+	}
+	q := req.URL.Query()
+	q.Add("entity", "Contact")
+	q.Add("action", "get")
+	q.Add("json", "1")
+	q.Add("api_key", os.Getenv("CIVI_API_KEY"))
+	q.Add("key", os.Getenv("CIVI_KEY"))
+	q.Add("email", email)
+	req.URL.RawQuery = q.Encode()
+	return req, nil
+}
+
+func SearchContact(email string) (SearchResponse, error) {
+	if req, err := buildSearchContactQuery(email); err != nil {
+		log.Println("Error building query", err)
+		return SearchResponse{}, err
 	} else {
-		defer resp.Body.Close()
-		decoder := json.NewDecoder(resp.Body)
-		var response searchResponse
-		if err := decoder.Decode(&response); err != nil {
-			fmt.Fprintln(os.Stderr, "Could not parse CiviCRM response", err)
+		if resp, err := http.DefaultClient.Do(req); err != nil {
+			log.Println("Error contacting CiviCRM", err)
+			return SearchResponse{}, err
 		} else {
-			return response
+			defer resp.Body.Close()
+			decoder := json.NewDecoder(resp.Body)
+			var response SearchResponse
+			if err := decoder.Decode(&response); err != nil {
+				log.Println("Could not parse CiviCRM response", err)
+				return SearchResponse{}, err
+			} else {
+				return response, nil
+			}
 		}
 	}
 }

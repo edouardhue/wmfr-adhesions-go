@@ -5,6 +5,6 @@ type iRaiserMember struct {
 	FirstName string `json:"firstName" binding:"required"`
 	LastName string `json:"lastName" binding:"required"`
 	City string `json:"city" binding:"required"`
-	PostCode string `json:"postCode" binding:"required"`
+	Country string `json:"country" binding:"required"`
 	Amount uint `json:"amount" binding:"required"`
 }

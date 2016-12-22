@@ -7,12 +7,17 @@ import (
 func addMember(c *gin.Context) {
 	var member iRaiserMember
 	if c.Bind(&member) == nil {
-		if found, err := lookupMember(member) ; err != nil {
-			c.Error(err)
-		} else if found == 1 {
-			c.Status(200)
+		if err := updateOrCreateMembership(member) ; err != nil {
+			switch err.(type) {
+				case *NoSuchContactError:
+					c.AbortWithError(404, err)
+				case *NoCommonMembershipError:
+					c.AbortWithError(404, err)
+				default:
+					c.AbortWithError(500, err)
+			}
 		} else {
-			c.Status(404)
+			c.Status(201)
 		}
 	}
 }

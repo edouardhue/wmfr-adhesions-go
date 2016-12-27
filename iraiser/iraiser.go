@@ -1,6 +1,6 @@
-package main
+package iraiser
 
-type iRaiserMember struct {
+type Member struct {
 	Mail string `json:"email" binding:"required"`
 	FirstName string `json:"firstName" binding:"required"`
 	LastName string `json:"lastName" binding:"required"`

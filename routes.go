@@ -2,11 +2,14 @@ package main
 
 import (
 	"github.com/gin-gonic/gin"
+	"github.com/edouardhue/wmfr-adhesions/iraiser"
 )
 
 func addMember(c *gin.Context) {
-	var member iRaiserMember
-	if c.Bind(&member) == nil {
+	var member iraiser.Member
+	if err := c.Bind(&member); err != nil {
+		c.AbortWithError(500, err)
+	} else {
 		if err := updateOrCreateMembership(member) ; err != nil {
 			switch err.(type) {
 				case *NoSuchContactError:

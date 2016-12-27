@@ -1,4 +1,4 @@
-package main
+package civicrm
 
 import (
 	"net/http"
@@ -9,33 +9,8 @@ import (
 	"strconv"
 )
 
-type searchResponse struct {
-	IsError int `json:"is_error" binding:"required"`
-	Version int `json:"version" binding:"required"`
-	Count int `json:"count" binding:"required"`
-	Id int `json:"id"`
-}
-
-type listMembershipsResponse struct {
-	IsError int `json:"is_error" binding:"required"`
-	Version int `json:"version" binding:"required"`
-	Count int `json:"count" binding:"required"`
-	Values map[int]membership `json:"values"`
-}
-
-type membership struct {
-	Id int `json:"id,string" binding:"required"`
-	ContactId int `json:"contact_id,string" binding:"required"`
-	MembershipTypeId int `json:"membership_type_id,string" binding:"required"`
-	JoinDate string `json:"join_date" binding:"required"`
-	StartDate string `json:"start_date" binding:"required"`
-	EndDate string `json:"end_date" binding:"required"`
-	StatusId int `json:"status_id,string" binding:"required"`
-	IsOverride int `json:"is_override,string"`
-}
-
-func searchContact(email string) (searchResponse, error) {
-	var response searchResponse
+func SearchContact(email string) (SearchResponse, error) {
+	var response SearchResponse
 	if req, err := buildSearchContactQuery(email); err != nil {
 		return response, err
 	} else {
@@ -43,8 +18,8 @@ func searchContact(email string) (searchResponse, error) {
 	}
 }
 
-func listContactMemberships(contactId int) (listMembershipsResponse, error) {
-	var response listMembershipsResponse
+func ListContactMemberships(contactId int) (ListMembershipsResponse, error) {
+	var response ListMembershipsResponse
 	if req, err := buildListContactMembershipsQuery(contactId); err != nil {
 		return response, err
 	} else {
@@ -53,7 +28,7 @@ func listContactMemberships(contactId int) (listMembershipsResponse, error) {
 }
 
 
-func createContact(contact string) {
+func CreateContact(contact string) {
 
 }
 
@@ -69,9 +44,9 @@ func buildListContactMembershipsQuery(contactId int) (*http.Request, error) {
 	})
 }
 
-type Customizer func(q *url.Values)
+type customizer func(q *url.Values)
 
-func buildBaseQuery(entity string, action string, customizer Customizer) (*http.Request, error) {
+func buildBaseQuery(entity string, action string, customizer customizer) (*http.Request, error) {
 	req, err := http.NewRequest("GET", os.Getenv("CIVI_URL"), nil)
 	if err != nil {
 		log.Println("Error building query", err)
@@ -85,7 +60,6 @@ func buildBaseQuery(entity string, action string, customizer Customizer) (*http.
 	q.Add("key", os.Getenv("CIVI_KEY"))
 	customizer(&q)
 	req.URL.RawQuery = q.Encode()
-	log.Println(req)
 	return req, nil
 }
 

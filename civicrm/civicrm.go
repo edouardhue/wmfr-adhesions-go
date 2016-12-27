@@ -7,10 +7,11 @@ import (
 	"log"
 	"net/url"
 	"strconv"
+	"math/big"
 )
 
-func SearchContact(email string) (SearchResponse, error) {
-	var response SearchResponse
+func SearchContact(email string) (ContactSearchResponse, error) {
+	var response ContactSearchResponse
 	if req, err := buildSearchContactQuery(email); err != nil {
 		return response, err
 	} else {
@@ -27,9 +28,17 @@ func ListContactMemberships(contactId int) (ListMembershipsResponse, error) {
 	}
 }
 
-
 func CreateContact(contact string) {
 
+}
+
+func CreateContribution(contribution Contribution) (CreateContributionResponse, error) {
+	var response CreateContributionResponse
+	if req, err := buildRecordContributionQuery(contribution); err != nil {
+		return response, err
+	} else {
+		return response, query(&response, req)
+	}
 }
 
 func buildSearchContactQuery(email string) (*http.Request, error) {
@@ -41,6 +50,14 @@ func buildSearchContactQuery(email string) (*http.Request, error) {
 func buildListContactMembershipsQuery(contactId int) (*http.Request, error) {
 	return buildBaseQuery("Membership", "get", func(q *url.Values) {
 		q.Add("contact_id", strconv.Itoa(contactId))
+	})
+}
+
+func buildRecordContributionQuery(contribution Contribution) (*http.Request, error) {
+	return buildBaseQuery("Contribution", "create", func(q *url.Values)  {
+		q.Add("contact_id", contribution.ContactId)
+		q.Add("financial_type_id", contribution.FinancialTypeId)
+		q.Add("total_amount", contribution.TotalAmount)
 	})
 }
 

@@ -1,10 +1,12 @@
 package civicrm
 
-type SearchResponse struct {
-	IsError int `json:"is_error" binding:"required"`
-	Version int `json:"version" binding:"required"`
-	Count int `json:"count" binding:"required"`
-	Id int `json:"id"`
+import "math/big"
+
+type ContactSearchResponse struct {
+	IsError   int `json:"is_error" binding:"required"`
+	Version   int `json:"version" binding:"required"`
+	Count     int `json:"count" binding:"required"`
+	ContactId int `json:"id"`
 }
 
 type ListMembershipsResponse struct {
@@ -25,3 +27,13 @@ type Membership struct {
 	IsOverride int `json:"is_override,string"`
 }
 
+type Contribution struct {
+	FinancialTypeId int
+	TotalAmount big.Float
+	ContactId int
+}
+
+type CreateContributionResponse struct {
+	IsError   int `json:"is_error" binding:"required"`
+	Version   int `json:"version" binding:"required"`
+}

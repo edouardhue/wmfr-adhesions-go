@@ -10,7 +10,7 @@ func addMember(c *gin.Context) {
 	if err := c.Bind(&member); err != nil {
 		c.AbortWithError(500, err)
 	} else {
-		if err := updateOrCreateMembership(member) ; err != nil {
+		if err := recordMembership(member) ; err != nil {
 			switch err.(type) {
 				case *NoSuchContactError:
 					c.AbortWithError(404, err)

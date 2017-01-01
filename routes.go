@@ -17,7 +17,7 @@ func MemberRoute(config *memberships.Config) gin.HandlerFunc {
 		if err := c.Bind(&donation); err != nil {
 			c.AbortWithError(400, err)
 		} else {
-			if err := adhesions.RecordMembership(donation) ; err != nil {
+			if err := adhesions.RecordMembership(&donation) ; err != nil {
 				switch err.(type) {
 				case *memberships.NoSuchContactError:
 					c.AbortWithError(404, err)

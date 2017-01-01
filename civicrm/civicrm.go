@@ -3,89 +3,89 @@ package civicrm
 import (
 	"net/http"
 	"encoding/json"
-	"os"
 	"log"
 	"net/url"
-	"strconv"
-	"math/big"
+	"bytes"
 )
 
-func SearchContact(email string) (ContactSearchResponse, error) {
-	var response ContactSearchResponse
-	if req, err := buildSearchContactQuery(email); err != nil {
-		return response, err
-	} else {
-		return response, query(&response, req)
+type CiviCRM struct {
+	client *http.Client
+	config *Config
+}
+
+func NewCiviCRM(config *Config, client *http.Client) *CiviCRM {
+	return &CiviCRM{
+		client: client,
+		config: config,
 	}
 }
 
-func ListContactMemberships(contactId int) (ListMembershipsResponse, error) {
-	var response ListMembershipsResponse
-	if req, err := buildListContactMembershipsQuery(contactId); err != nil {
-		return response, err
+func (c *CiviCRM) SearchContact(query SearchContactQuery) (response *SearchContactResponse, _ error) {
+	response = &SearchContactResponse{}
+	if req, err := c.buildQuery("Contact", "get", query); err != nil {
+		return nil, err
 	} else {
-		return response, query(&response, req)
+		return response, c.query(response, req)
 	}
 }
 
-func CreateContact(contact string) {
-
-}
-
-func CreateContribution(contribution Contribution) (CreateContributionResponse, error) {
-	var response CreateContributionResponse
-	if req, err := buildRecordContributionQuery(contribution); err != nil {
-		return response, err
+func (c *CiviCRM) ListContactMemberships(query ListMembershipsQuery) (response *ListMembershipsResponse, _ error) {
+	response = &ListMembershipsResponse{}
+	if req, err := c.buildQuery("Membership", "get", query); err != nil {
+		return nil, err
 	} else {
-		return response, query(&response, req)
+		return response, c.query(response, req)
 	}
 }
 
-func buildSearchContactQuery(email string) (*http.Request, error) {
-	return buildBaseQuery("Contact", "get", func(q *url.Values) {
-		q.Add("email", email)
-	})
+func (c *CiviCRM) CreateContact(contact string) {
+
 }
 
-func buildListContactMembershipsQuery(contactId int) (*http.Request, error) {
-	return buildBaseQuery("Membership", "get", func(q *url.Values) {
-		q.Add("contact_id", strconv.Itoa(contactId))
-	})
+func (c *CiviCRM) CreateContribution(contribution Contribution) (response *CreateContributionResponse, _ error) {
+	response = &CreateContributionResponse{}
+	if req, err := c.buildQuery("Contribution", "create", contribution); err != nil {
+		return nil, err
+	} else {
+		return response, c.query(response, req)
+	}
 }
 
-func buildRecordContributionQuery(contribution Contribution) (*http.Request, error) {
-	return buildBaseQuery("Contribution", "create", func(q *url.Values)  {
-		q.Add("contact_id", contribution.ContactId)
-		q.Add("financial_type_id", contribution.FinancialTypeId)
-		q.Add("total_amount", contribution.TotalAmount)
-	})
-}
+func (c *CiviCRM) buildQuery(entity string, action string, query interface{}) (*http.Request, error) {
+	q := url.Values{}
+	q.Add("entity", entity)
+	q.Add("action", action)
+	q.Add("api_key", c.config.UserKey)
+	q.Add("key", c.config.SiteKey)
+	if json, err := json.Marshal(query); err != nil {
+		log.Println("Error marshalling query", err)
+	} else {
+		q.Add("json", string(json))
+	}
 
-type customizer func(q *url.Values)
-
-func buildBaseQuery(entity string, action string, customizer customizer) (*http.Request, error) {
-	req, err := http.NewRequest("GET", os.Getenv("CIVI_URL"), nil)
+	req, err := http.NewRequest("POST", c.config.URL, bytes.NewBufferString(q.Encode()))
 	if err != nil {
 		log.Println("Error building query", err)
 		return req, err
 	}
-	q := req.URL.Query()
-	q.Add("entity", entity)
-	q.Add("action", action)
-	q.Add("json", "1")
-	q.Add("api_key", os.Getenv("CIVI_API_KEY"))
-	q.Add("key", os.Getenv("CIVI_KEY"))
-	customizer(&q)
-	req.URL.RawQuery = q.Encode()
+	req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
+	req.Header.Add("Accepts", "application/json")
+
 	return req, nil
 }
 
-func query(response interface{}, req *http.Request) error {
-	if resp, err := http.DefaultClient.Do(req); err != nil {
+func (c *CiviCRM) query(response Response, req *http.Request) error {
+	if resp, err := c.client.Do(req); err != nil {
 		log.Println("Error contacting CiviCRM", err)
 		return err
 	} else {
 		defer resp.Body.Close()
-		return json.NewDecoder(resp.Body).Decode(&response)
+		if err := json.NewDecoder(resp.Body).Decode(response); err != nil {
+			return err
+		} else if response.Success() {
+			return nil
+		} else {
+			return ResponseError{response.GetErrorMessage()}
+		}
 	}
 }

@@ -1,0 +1,20 @@
+{
+  "donator": {
+    "email": "john.doe@wikimedia.fr",
+    "firstName": "John",
+    "lastName": "Doe",
+    "country": "FR"
+  },
+  "campaign": {
+    "affectationCode": "Adhésions iRaiser",
+    "originCode": "Adhésion CiviCRM"
+  },
+  "payment": {
+    "mode": "card",
+    "gatewayId": "cHubrefU6uC5"
+  },
+  "amount": 1200,
+  "currency": "EUR",
+  "reference": "WIKI20170101-1200-3000",
+  "validationDate": "2016-01-01T12:00:30Z"
+}

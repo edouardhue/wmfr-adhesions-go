@@ -20,55 +20,6 @@ func NewCiviCRM(config *Config, client *http.Client) *CiviCRM {
 	}
 }
 
-func (c *CiviCRM) GetContact(query *ContactQuery) (response *GetContactResponse, _ error) {
-	response = &GetContactResponse{}
-	if req, err := c.buildQuery("Contact", "get", query); err != nil {
-		return nil, err
-	} else {
-		return response, c.query(response, req)
-	}
-}
-
-func (c *CiviCRM) GetMembership(query *MembershipQuery) (response *GetMembershipResponse, _ error) {
-	response = &GetMembershipResponse{}
-	if req, err := c.buildQuery("Membership", "get", query); err != nil {
-		return nil, err
-	} else {
-		return response, c.query(response, req)
-	}
-}
-
-func (c *CiviCRM) CreateMembership(membership *Membership) (response *CreateMembershipResponse, _ error) {
-	response = &CreateMembershipResponse{}
-	if req, err := c.buildQuery("Membership", "create", membership); err != nil {
-		return nil, err
-	} else {
-		return response, c.query(response, req)
-	}
-}
-
-func (c *CiviCRM) CreateContact(contact string) {
-
-}
-
-func (c *CiviCRM) CreateContribution(contribution *Contribution) (response *CreateContributionResponse, _ error) {
-	response = &CreateContributionResponse{}
-	if req, err := c.buildQuery("Contribution", "create", contribution); err != nil {
-		return nil, err
-	} else {
-		return response, c.query(response, req)
-	}
-}
-
-func (c *CiviCRM) CreateMembershipPayment(payment *MembershipPayment) (response *CreateMembershipPaymentResponse, _ error) {
-	response = &CreateMembershipPaymentResponse{}
-	if req, err := c.buildQuery("MembershipPayment", "create", payment); err != nil {
-		return nil, err
-	} else {
-		return response, c.query(response, req)
-	}
-}
-
 func (c *CiviCRM) buildQuery(entity string, action string, query interface{}) (*http.Request, error) {
 	q := url.Values{}
 	q.Add("entity", entity)
@@ -92,7 +43,7 @@ func (c *CiviCRM) buildQuery(entity string, action string, query interface{}) (*
 	return req, nil
 }
 
-func (c *CiviCRM) query(response Response, req *http.Request) error {
+func (c *CiviCRM) query(response Status, req *http.Request) error {
 	if resp, err := c.client.Do(req); err != nil {
 		log.Println("Error contacting CiviCRM", err)
 		return err

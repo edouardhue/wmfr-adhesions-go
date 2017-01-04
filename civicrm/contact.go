@@ -1,21 +1,36 @@
 package civicrm
 
-type ContactQuery struct {
+type Contact struct {
+	ContactType        int `json:"contact_type,string"`
+	FirstName          string `json:"first_name"`
+	LastName           string `json:"last_name"`
+	Pseudo             string  `json:"pseudo"`
+	Source             string `json:"source"`
+	EMail              string `json:"email"`
+	ExternalIdentifier string `json:"external_identifier"`
+}
+
+type GetContactQuery struct {
 	EMail string `json:"email"`
 }
 
 type GetContactResponse struct {
-	IsError      int `json:"is_error" binding:"required"`
-	ErrorMessage string `json:"error_message"`
-	Version      int `json:"version"`
-	Count        int `json:"count"`
-	Id           int `json:"id"`
+	StatusResponse
 }
 
-func (r *GetContactResponse) Success() bool {
-	return r.IsError == 0
+type CreateContactResponse struct {
+	StatusResponse
 }
 
-func (r *GetContactResponse) GetErrorMessage() string {
-	return r.ErrorMessage
+func (c *CiviCRM) GetContact(query *GetContactQuery) (response *GetContactResponse, _ error) {
+	response = &GetContactResponse{}
+	if req, err := c.buildQuery("Contact", "get", query); err != nil {
+		return nil, err
+	} else {
+		return response, c.query(response, req)
+	}
+}
+
+func (c *CiviCRM) CreateContact(contact string) {
+
 }

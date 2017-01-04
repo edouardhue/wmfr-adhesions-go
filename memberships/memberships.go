@@ -20,7 +20,7 @@ func NewMemberships(config *Config) *Memberships {
 }
 
 func (m *Memberships) RecordMembership(donation *iraiser.Donation) error {
-	if searchResult, err := m.crm.GetContact(&civicrm.ContactQuery{EMail: donation.Donator.Mail}); err != nil {
+	if searchResult, err := m.crm.GetContact(&civicrm.GetContactQuery{EMail: donation.Donator.Mail}); err != nil {
 		return err
 	} else if searchResult.Count == 1 {
 		return m.updateMembership(donation, searchResult.Id)
@@ -30,7 +30,7 @@ func (m *Memberships) RecordMembership(donation *iraiser.Donation) error {
 }
 
 func (m *Memberships) updateMembership(donation *iraiser.Donation, contactId int) error {
-	if memberships, err := m.crm.GetMembership(&civicrm.MembershipQuery{ContactId: contactId}); err != nil {
+	if memberships, err := m.crm.GetMembership(&civicrm.GetMembershipQuery{ContactId: contactId}); err != nil {
 		return err
 	} else if commonMembership := m.findCommonMembership(memberships); commonMembership != nil {
 		if err := m.recordContribution(donation, commonMembership); err != nil {

@@ -20,17 +20,14 @@ type Contribution struct {
 }
 
 type CreateContributionResponse struct {
-	IsError      int `json:"is_error" binding:"required"`
-	ErrorMessage string `json:"error_message"`
-	Version      int `json:"version"`
-	Count        int `json:"count"`
-	Id           int `json:"id"`
+	StatusResponse
 }
 
-func (r *CreateContributionResponse) Success() bool {
-	return r.IsError == 0
-}
-
-func (r *CreateContributionResponse) GetErrorMessage() string {
-	return r.ErrorMessage
+func (c *CiviCRM) CreateContribution(contribution *Contribution) (response *CreateContributionResponse, _ error) {
+	response = &CreateContributionResponse{}
+	if req, err := c.buildQuery("Contribution", "create", contribution); err != nil {
+		return nil, err
+	} else {
+		return response, c.query(response, req)
+	}
 }

@@ -6,17 +6,14 @@ type MembershipPayment struct {
 }
 
 type CreateMembershipPaymentResponse struct {
-	IsError      int `json:"is_error" binding:"required"`
-	ErrorMessage string `json:"error_message"`
-	Version      int `json:"version"`
-	Count        int `json:"count"`
-	Id           int `json:"id"`
+	StatusResponse
 }
 
-func (r *CreateMembershipPaymentResponse) Success() bool {
-	return r.IsError == 0
-}
-
-func (r *CreateMembershipPaymentResponse) GetErrorMessage() string {
-	return r.ErrorMessage
+func (c *CiviCRM) CreateMembershipPayment(payment *MembershipPayment) (response *CreateMembershipPaymentResponse, _ error) {
+	response = &CreateMembershipPaymentResponse{}
+	if req, err := c.buildQuery("MembershipPayment", "create", payment); err != nil {
+		return nil, err
+	} else {
+		return response, c.query(response, req)
+	}
 }

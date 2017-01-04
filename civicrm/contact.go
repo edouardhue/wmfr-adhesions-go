@@ -2,16 +2,15 @@ package civicrm
 
 type Contact struct {
 	ContactType        int `json:"contact_type,string"`
+	Mail               string `json:"email"`
 	FirstName          string `json:"first_name"`
 	LastName           string `json:"last_name"`
 	Pseudo             string  `json:"pseudo"`
 	Source             string `json:"source"`
-	EMail              string `json:"email"`
-	ExternalIdentifier string `json:"external_identifier"`
 }
 
 type GetContactQuery struct {
-	EMail string `json:"email"`
+	Mail string `json:"email"`
 }
 
 type GetContactResponse struct {
@@ -31,6 +30,11 @@ func (c *CiviCRM) GetContact(query *GetContactQuery) (response *GetContactRespon
 	}
 }
 
-func (c *CiviCRM) CreateContact(contact string) {
-
+func (c *CiviCRM) CreateContact(contact *Contact) (response *CreateContactResponse, _ error) {
+	response = &CreateContactResponse{}
+	if req, err := c.buildQuery("Contact", "create", contact); err != nil {
+		return nil, err
+	} else {
+		return response, c.query(response, req)
+	}
 }

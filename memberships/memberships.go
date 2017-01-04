@@ -20,12 +20,15 @@ func NewMemberships(config *Config) *Memberships {
 }
 
 func (m *Memberships) RecordMembership(donation *iraiser.Donation) error {
-	if searchResult, err := m.crm.GetContact(&civicrm.GetContactQuery{EMail: donation.Donator.Mail}); err != nil {
+	query := civicrm.GetContactQuery{
+		Mail: donation.Donator.Mail,
+	}
+	if searchResult, err := m.crm.GetContact(&query); err != nil {
 		return err
 	} else if searchResult.Count == 1 {
 		return m.updateMembership(donation, searchResult.Id)
 	} else {
-		return &NoSuchContactError{donation.Donator.Mail}
+		return m.createContact(donation)
 	}
 }
 
@@ -87,4 +90,29 @@ func (m *Memberships) renewMembership(donation *iraiser.Donation, membership *ci
 	membership.CampaignId = m.config.CampaignId
 	_, err := m.crm.CreateMembership(membership)
 	return err
+}
+
+func (m *Memberships) createContact(donation *iraiser.Donation) error {
+	contact := civicrm.Contact{
+		ContactType: m.config.ContactTypeId,
+		Mail: donation.Donator.Mail,
+		FirstName: donation.Donator.FirstName,
+		LastName: donation.Donator.LastName,
+		Pseudo: donation.Donator.Pseudo,
+		Source: m.config.ContactSourceName,
+	}
+	if resp, err := m.crm.CreateContact(&contact); err != nil {
+		return err
+	} else {
+		address := civicrm.Address{
+			ContactId: resp.Id,
+			StreetAddress: donation.Donator.StreetAddress,
+			City: donation.Donator.City,
+			PostalCode: donation.Donator.PostalCode,
+			Country: donation.Donator.Country,
+			StreetParsing: 1,
+		}
+		_, err := m.crm.CreateAddress(&address)
+		return err
+	}
 }

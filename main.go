@@ -7,7 +7,6 @@ import (
 	"os"
 	"gopkg.in/yaml.v2"
 	"github.com/edouardhue/wmfr-adhesions/memberships"
-	"log"
 )
 
 func main() {

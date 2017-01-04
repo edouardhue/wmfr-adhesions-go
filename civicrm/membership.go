@@ -1,7 +1,7 @@
 package civicrm
 
 type Membership struct {
-	Id               int `json:"id,string" binding:"required"`
+	Id               int `json:"id,string"`
 	ContactId        int `json:"contact_id,string"`
 	CampaignId       int `json:"campaign_id,string"`
 	MembershipTypeId int `json:"membership_type_id,string"`

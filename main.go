@@ -14,22 +14,24 @@ func main() {
 	if config, err := readConfigurationFile(); err != nil {
 		panic(err)
 	} else {
-		log.Printf("%+v\n", config)
-
-		r := gin.Default()
-
-		r.GET("/status", func(c *gin.Context) {
-			c.Status(200)
-		})
-
-		authorized := r.Group("/1")
-		authorized.Use(iRaiserAuthentication(config))
-		{
-			authorized.POST("/members", MemberRoute(config))
-		}
-
-		r.Run(":8000")
+		runServer(config)
 	}
+}
+
+func runServer(config *memberships.Config) {
+	r := gin.Default()
+
+	r.GET("/status", func(c *gin.Context) {
+		c.Status(200)
+	})
+
+	authorized := r.Group("/1")
+	authorized.Use(iRaiserAuthentication(config))
+	{
+		authorized.POST("/members", MemberRoute(config))
+	}
+
+	r.Run(":8000")
 }
 
 func iRaiserAuthentication(config *memberships.Config) gin.HandlerFunc {

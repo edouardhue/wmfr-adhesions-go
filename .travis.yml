@@ -1,0 +1,6 @@
+language: go
+
+go: 1.7.x
+
+install:
+  - go get gopkg.in/gin-gonic/gin.v1

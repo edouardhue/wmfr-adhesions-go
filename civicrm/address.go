@@ -1,8 +1,9 @@
 package civicrm
 
 type Address struct {
-	Id               int `json:"id,string"`
+	Id               int `json:"id,string,omitempty"`
 	ContactId        int `json:"contact_id,string"`
+	LocationTypeId   int `json:"location_type_id,string"`
 	StreetAddress    string `json:"street_address"`
 	StreetParsing    int `json:"street_parsing"`
 	City             string `json:"city"`

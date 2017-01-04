@@ -1,5 +1,9 @@
 package civicrm
 
+import (
+	"fmt"
+)
+
 type StatusResponse struct {
 	IsError      int `json:"is_error" binding:"required"`
 	ErrorMessage string `json:"error_message"`
@@ -22,9 +26,10 @@ func (r *StatusResponse) GetErrorMessage() string {
 }
 
 type ResponseError struct {
+	Request string
 	Message string
 }
 
 func (e ResponseError) Error() string {
-	return e.Message
+	return fmt.Sprintf("%s\n\n%s", e.Message, e.Request)
 }

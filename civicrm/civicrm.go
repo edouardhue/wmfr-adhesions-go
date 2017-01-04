@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/url"
 	"bytes"
+	"net/http/httputil"
 )
 
 type CiviCRM struct {
@@ -44,6 +45,7 @@ func (c *CiviCRM) buildQuery(entity string, action string, query interface{}) (*
 }
 
 func (c *CiviCRM) query(response Status, req *http.Request) error {
+	dump, _ := httputil.DumpRequestOut(req, true)
 	if resp, err := c.client.Do(req); err != nil {
 		log.Println("Error contacting CiviCRM", err)
 		return err
@@ -54,7 +56,11 @@ func (c *CiviCRM) query(response Status, req *http.Request) error {
 		} else if response.Success() {
 			return nil
 		} else {
-			return ResponseError{response.GetErrorMessage()}
+			unescaped, _ := url.QueryUnescape(string(dump))
+			return ResponseError{
+				Request: unescaped,
+				Message: response.GetErrorMessage(),
+			}
 		}
 	}
 }

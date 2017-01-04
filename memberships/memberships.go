@@ -94,7 +94,7 @@ func (m *Memberships) renewMembership(donation *iraiser.Donation, membership *ci
 
 func (m *Memberships) createContact(donation *iraiser.Donation) error {
 	contact := civicrm.Contact{
-		ContactType: m.config.ContactTypeId,
+		ContactType: m.config.ContactTypeName,
 		Mail: donation.Donator.Mail,
 		FirstName: donation.Donator.FirstName,
 		LastName: donation.Donator.LastName,
@@ -106,6 +106,7 @@ func (m *Memberships) createContact(donation *iraiser.Donation) error {
 	} else {
 		address := civicrm.Address{
 			ContactId: resp.Id,
+			LocationTypeId: m.config.LocationTypeId,
 			StreetAddress: donation.Donator.StreetAddress,
 			City: donation.Donator.City,
 			PostalCode: donation.Donator.PostalCode,

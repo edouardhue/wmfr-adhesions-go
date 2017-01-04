@@ -1,7 +1,7 @@
 package civicrm
 
 type Contact struct {
-	ContactType        int `json:"contact_type,string"`
+	ContactType        string `json:"contact_type"`
 	Mail               string `json:"email"`
 	FirstName          string `json:"first_name"`
 	LastName           string `json:"last_name"`

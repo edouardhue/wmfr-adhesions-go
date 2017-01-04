@@ -10,7 +10,7 @@ type Config struct {
 	IRaiser                   iraiser.Config `yaml:"iRaiser"`
 	PaymentInstruments        map[string]int `yaml:"paymentInstruments"`
 	CampaignId                int `yaml:"campaignId"`
-	ContactTypeId             int `yaml:"contactTypeId"`
+	ContactTypeName           string `yaml:"contactTypeName"`
 	ContactSourceName         string `yaml:"contactSourceName"`
 	LocationTypeId            int `yaml:"locationTypeId"`
 	MembershipTypeId          int `yaml:"membershipTypeId"`

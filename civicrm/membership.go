@@ -43,3 +43,12 @@ func (c *CiviCRM) CreateMembership(membership *Membership) (response *CreateMemb
 		return response, c.query(response, req)
 	}
 }
+
+func (r *GetMembershipResponse) FindFirstByType(typeId int) *Membership {
+	for _, membership := range r.Values {
+		if membership.MembershipTypeId == typeId {
+			return &membership
+		}
+	}
+	return nil
+}

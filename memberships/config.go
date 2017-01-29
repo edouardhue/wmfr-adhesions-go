@@ -18,4 +18,5 @@ type Config struct {
 	MembershipStatusId        int `yaml:"membershipStatusId"`
 	ContributionStatusId      int `yaml:"contributionStatusId"`
 	ContributionSourceName    string `yaml:"contributionSourceName"`
+	Log                       string `yaml:"log"`
 }

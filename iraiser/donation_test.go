@@ -6,7 +6,7 @@ import (
 	"io/ioutil"
 )
 
-func TestJsonBinding(t *testing.T) {
+func TestDonationJsonBinding(t *testing.T) {
 	if bytes, err := ioutil.ReadFile("sample_donation.json"); err != nil {
 		t.Fatal(err)
 	} else {

@@ -7,6 +7,8 @@ import (
 	"os"
 	"gopkg.in/yaml.v2"
 	"github.com/wikimedia-france/wmfr-adhesions/memberships"
+	"io/ioutil"
+	"fmt"
 )
 
 func main() {
@@ -18,17 +20,37 @@ func main() {
 }
 
 func runServer(config *memberships.Config) {
-	r := gin.Default()
-
-	r.GET("/status", func(c *gin.Context) {
-		c.Status(200)
-	})
-
-	authorized := r.Group("/1")
-	authorized.Use(iRaiserAuthentication(config))
-	{
-		authorized.POST("/members", MemberRoute(config))
+	logFile, err := os.OpenFile(config.Log, os.O_CREATE | os.O_APPEND | os.O_WRONLY, 0600)
+	if err != nil {
+		panic(err)
 	}
+	defer logFile.Close()
+
+	r := gin.New()
+	r.Use(gin.LoggerWithWriter(logFile), gin.Recovery())
+
+	m := r.Group("/memberships")
+	{
+		m.GET("/status", func(c *gin.Context) {
+			c.Status(200)
+		})
+
+		m.POST("/debug", func(c *gin.Context) {
+			body, _ := ioutil.ReadAll(c.Request.Body)
+			login := c.Request.Header.Get("secureLogin")
+			timestamp :=  c.Request.Header.Get("secureTimestamp")
+			token := c.Request.Header.Get("secureToken")
+			fmt.Fprintf(logFile, "%s:%s:%s\n%s\n", login, timestamp, token, string(body))
+			c.Status(202)
+		})
+
+		authorized := m.Group("/1")
+		authorized.Use(iRaiserAuthentication(config))
+		{
+			authorized.POST("/members", MemberRoute(config))
+		}
+	}
+
 
 	r.Run(":8000")
 }

@@ -1,8 +1,8 @@
 package memberships
 
 import (
-	"github.com/edouardhue/wmfr-adhesions/iraiser"
-	"github.com/edouardhue/wmfr-adhesions/civicrm"
+	"github.com/wikimedia-france/wmfr-adhesions/iraiser"
+	"github.com/wikimedia-france/wmfr-adhesions/civicrm"
 )
 
 func (m *Memberships) recordMembershipRenewal(donation *iraiser.Donation, contactId int) error {

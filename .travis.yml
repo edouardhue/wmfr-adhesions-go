@@ -2,7 +2,7 @@ language: go
 
 go: 1.7.x
 
-go_import_path: github.com/edouardhue/wmfr-adhesions
+go_import_path: github.com/wikimedia-france/wmfr-adhesions
 
 install:
   - go get gopkg.in/gin-gonic/gin.v1

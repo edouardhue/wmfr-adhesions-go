@@ -2,11 +2,11 @@ package main
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/edouardhue/wmfr-adhesions/iraiser"
+	"github.com/wikimedia-france/wmfr-adhesions/iraiser"
 	"encoding/hex"
 	"os"
 	"gopkg.in/yaml.v2"
-	"github.com/edouardhue/wmfr-adhesions/memberships"
+	"github.com/wikimedia-france/wmfr-adhesions/memberships"
 )
 
 func main() {

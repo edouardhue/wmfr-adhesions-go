@@ -1,8 +1,8 @@
 package memberships
 
 import (
-	"github.com/edouardhue/wmfr-adhesions/civicrm"
-	"github.com/edouardhue/wmfr-adhesions/iraiser"
+	"github.com/wikimedia-france/wmfr-adhesions/civicrm"
+	"github.com/wikimedia-france/wmfr-adhesions/iraiser"
 )
 
 type Config struct {

@@ -10,11 +10,11 @@ import (
 )
 
 func main() {
-	if config, err := readConfigurationFile(); err != nil {
+	config, err := readConfigurationFile()
+	if err != nil {
 		panic(err)
-	} else {
-		runServer(config)
 	}
+	runServer(config)
 }
 
 func runServer(config *memberships.Config) {
@@ -39,20 +39,21 @@ func iRaiserAuthentication(config *memberships.Config) gin.HandlerFunc {
 		login := c.Request.Header.Get("secureLogin")
 		timestamp :=  c.Request.Header.Get("secureTimestamp")
 		token := c.Request.Header.Get("secureToken")
-		if tokenBytes, err := hex.DecodeString(token); err != nil {
+		tokenBytes, err := hex.DecodeString(token)
+		if err != nil {
 			c.AbortWithError(500, err)
-		} else {
-			var secureHeader = iraiser.SecureHeader{
-				Login: login,
-				Timestamp: timestamp,
-				Token: tokenBytes,
-			}
-			if iRaiser.Verify(&secureHeader) {
-				c.Next()
-			} else {
-				c.AbortWithStatus(401)
-			}
+			return
 		}
+		var secureHeader = iraiser.SecureHeader{
+			Login: login,
+			Timestamp: timestamp,
+			Token: tokenBytes,
+		}
+		if !iRaiser.Verify(&secureHeader) {
+			c.AbortWithStatus(401)
+			return
+		}
+		c.Next()
 	}
 }
 
@@ -61,24 +62,20 @@ func readConfigurationFile() (config *memberships.Config, _ error) {
 	if !exists {
 		location = "./adhesions.yaml"
 	}
-
-	if fileinfo, err := os.Stat(location); err != nil {
+	fileinfo, err := os.Stat(location)
+	if err != nil {
 		return nil, err
-	} else {
-		filesize := fileinfo.Size()
-
-		if fp, err := os.Open(location); err != nil {
-			return nil, err
-		} else {
-			defer fp.Close()
-
-			buf := make([]byte, filesize)
-			fp.Read(buf)
-			if err = yaml.Unmarshal(buf, &config); err != nil {
-				return nil, err
-			} else {
-				return config, nil
-			}
-		}
 	}
+	filesize := fileinfo.Size()
+	fp, err := os.Open(location)
+	if err != nil {
+		return nil, err
+	}
+	defer fp.Close()
+	buf := make([]byte, filesize)
+	fp.Read(buf)
+	if err = yaml.Unmarshal(buf, &config); err != nil {
+		return nil, err
+	}
+	return config, nil
 }

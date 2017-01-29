@@ -25,9 +25,9 @@ type CreateContributionResponse struct {
 
 func (c *CiviCRM) CreateContribution(contribution *Contribution) (response *CreateContributionResponse, _ error) {
 	response = &CreateContributionResponse{}
-	if req, err := c.buildQuery("Contribution", "create", contribution); err != nil {
+	req, err := c.buildQuery("Contribution", "create", contribution)
+	if err != nil {
 		return nil, err
-	} else {
-		return response, c.query(response, req)
 	}
+	return response, c.query(response, req)
 }

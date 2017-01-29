@@ -19,25 +19,27 @@ func NewMemberships(config *Config) *Memberships {
 }
 
 func (m *Memberships) RecordMembership(donation *iraiser.Donation) error {
-	if contactId, err := m.getContact(donation); err != nil {
+	contactId, err := m.getContact(donation);
+	if err != nil {
 		switch err.(type) {
 		case NoSuchContactError:
-			if contactId, err := m.createContact(donation); err != nil {
+			contactId, err := m.createContact(donation)
+			if err != nil {
 				return err
-			} else {
-				return m.recordNewMembership(donation, contactId)
 			}
+			return m.recordNewMembership(donation, contactId)
 		default:
 			return err
 		}
-	} else if err := m.recordMembershipRenewal(donation, contactId); err != nil {
+	}
+	err = m.recordMembershipRenewal(donation, contactId);
+	if err != nil {
 		switch err.(type) {
 		case NoSuitableMembershipError:
 			return m.recordNewMembership(donation, contactId)
 		default:
 			return err
 		}
-	} else {
-		return nil
 	}
+	return nil
 }

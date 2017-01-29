@@ -46,21 +46,21 @@ func (c *CiviCRM) buildQuery(entity string, action string, query interface{}) (*
 
 func (c *CiviCRM) query(response Status, req *http.Request) error {
 	dump, _ := httputil.DumpRequestOut(req, true)
-	if resp, err := c.client.Do(req); err != nil {
+	resp, err := c.client.Do(req)
+	if err != nil {
 		log.Println("Error contacting CiviCRM", err)
 		return err
-	} else {
-		defer resp.Body.Close()
-		if err := json.NewDecoder(resp.Body).Decode(response); err != nil {
-			return err
-		} else if response.Success() {
-			return nil
-		} else {
-			unescaped, _ := url.QueryUnescape(string(dump))
-			return ResponseError{
-				Request: unescaped,
-				Message: response.GetErrorMessage(),
-			}
-		}
+	}
+	defer resp.Body.Close()
+	if err := json.NewDecoder(resp.Body).Decode(response); err != nil {
+		return err
+	}
+	if response.Success() {
+		return nil
+	}
+	unescaped, _ := url.QueryUnescape(string(dump))
+	return ResponseError{
+		Request: unescaped,
+		Message: response.GetErrorMessage(),
 	}
 }

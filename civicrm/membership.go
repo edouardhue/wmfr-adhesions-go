@@ -28,27 +28,27 @@ type CreateMembershipResponse struct {
 
 func (c *CiviCRM) GetMembership(query *GetMembershipQuery) (response *GetMembershipResponse, _ error) {
 	response = &GetMembershipResponse{}
-	if req, err := c.buildQuery("Membership", "get", query); err != nil {
+	req, err := c.buildQuery("Membership", "get", query)
+	if err != nil {
 		return nil, err
-	} else {
-		return response, c.query(response, req)
 	}
+	return response, c.query(response, req)
 }
 
 func (c *CiviCRM) CreateMembership(membership *Membership) (response *CreateMembershipResponse, _ error) {
 	response = &CreateMembershipResponse{}
-	if req, err := c.buildQuery("Membership", "create", membership); err != nil {
+	req, err := c.buildQuery("Membership", "create", membership)
+	if err != nil {
 		return nil, err
-	} else {
-		return response, c.query(response, req)
 	}
+	return response, c.query(response, req)
 }
 
-func (r *GetMembershipResponse) FindFirstByType(typeId int) *Membership {
+func (r *GetMembershipResponse) FindFirstByType(typeId int) (*Membership, error) {
 	for _, membership := range r.Values {
 		if membership.MembershipTypeId == typeId {
-			return &membership
+			return &membership, nil
 		}
 	}
-	return nil
+	return &Membership{}, NoSuchMembershipError{typeId, r}
 }

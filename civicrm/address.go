@@ -17,9 +17,9 @@ type CreateAddressResponse struct {
 
 func (c *CiviCRM) CreateAddress(address *Address) (response *CreateAddressResponse, _ error) {
 	response = &CreateAddressResponse{}
-	if req, err := c.buildQuery("Address", "create", address); err != nil {
+	req, err := c.buildQuery("Address", "create", address)
+	if err != nil {
 		return nil, err
-	} else {
-		return response, c.query(response, req)
 	}
+	return response, c.query(response, req)
 }

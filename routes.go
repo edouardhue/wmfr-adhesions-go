@@ -14,20 +14,15 @@ func MemberRoute(config *memberships.Config) gin.HandlerFunc {
 	adhesions := memberships.NewMemberships(config)
 	return func(c *gin.Context) {
 		var donation iraiser.Donation
-		if err := c.Bind(&donation); err != nil {
+		err := c.Bind(&donation)
+		if err != nil {
 			c.AbortWithError(400, err)
-		} else {
-			if err := adhesions.RecordMembership(&donation) ; err != nil {
-				switch err.(type) {
-				case *memberships.NoSuitableMembershipError:
-					c.AbortWithError(404, err)
-				default:
-					c.AbortWithError(500, err)
-				}
-			} else {
-				c.Status(201)
-			}
 		}
+		err = adhesions.RecordMembership(&donation)
+		if err != nil {
+			c.AbortWithError(500, err)
+		}
+		c.Status(201)
 	}
 }
 

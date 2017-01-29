@@ -20,14 +20,14 @@ func (m *Memberships) recordContribution(donation *iraiser.Donation, membership 
 		CampaignId: m.config.CampaignId,
 		StatusId: m.config.ContributionStatusId,
 	}
-	if createReponse, err := m.crm.CreateContribution(&contribution); err != nil {
-		return err
-	} else {
-		payment := civicrm.MembershipPayment{
-			ContributionId: createReponse.Id,
-			MembershipId: membership.Id,
-		}
-		_, err := m.crm.CreateMembershipPayment(&payment)
+	createReponse, err := m.crm.CreateContribution(&contribution)
+	if err != nil {
 		return err
 	}
+	payment := civicrm.MembershipPayment{
+		ContributionId: createReponse.Id,
+		MembershipId: membership.Id,
+	}
+	_, err = m.crm.CreateMembershipPayment(&payment)
+	return err
 }

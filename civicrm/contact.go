@@ -23,18 +23,18 @@ type CreateContactResponse struct {
 
 func (c *CiviCRM) GetContact(query *GetContactQuery) (response *GetContactResponse, _ error) {
 	response = &GetContactResponse{}
-	if req, err := c.buildQuery("Contact", "get", query); err != nil {
+	req, err := c.buildQuery("Contact", "get", query)
+	if err != nil {
 		return nil, err
-	} else {
-		return response, c.query(response, req)
 	}
+	return response, c.query(response, req)
 }
 
 func (c *CiviCRM) CreateContact(contact *Contact) (response *CreateContactResponse, _ error) {
 	response = &CreateContactResponse{}
-	if req, err := c.buildQuery("Contact", "create", contact); err != nil {
+	req, err := c.buildQuery("Contact", "create", contact)
+	if err != nil {
 		return nil, err
-	} else {
-		return response, c.query(response, req)
 	}
+	return response, c.query(response, req)
 }

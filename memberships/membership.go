@@ -6,25 +6,27 @@ import (
 )
 
 func (m *Memberships) recordMembershipRenewal(donation *iraiser.Donation, contactId int) error {
-	if memberships, err := m.crm.GetMembership(&civicrm.GetMembershipQuery{ContactId: contactId}); err != nil {
+	memberships, err := m.crm.GetMembership(&civicrm.GetMembershipQuery{ContactId: contactId})
+	if err != nil {
 		return err
-	} else if membership := memberships.FindFirstByType(m.config.MembershipTypeId) ; membership != nil {
-		if err := m.recordContribution(donation, membership); err != nil {
-			return err
-		} else {
-			return m.renewMembership(donation, membership)
-		}
-	} else {
+	}
+	membership, err := memberships.FindFirstByType(m.config.MembershipTypeId)
+	if err != nil {
 		return &NoSuitableMembershipError{Mail: donation.Donator.Mail, ExpectedMembershipTypeId: m.config.MembershipTypeId}
 	}
+	err = m.recordContribution(donation, membership)
+	if err != nil {
+		return err
+	}
+	return m.renewMembership(donation, membership)
 }
 
 func (m *Memberships) recordNewMembership(donation *iraiser.Donation, contactId int) error {
-	if membership, err := m.createMembership(donation, contactId); err != nil {
+	membership, err := m.createMembership(donation, contactId)
+	if err != nil {
 		return err
-	} else {
-		return m.recordContribution(donation, membership)
 	}
+	return m.recordContribution(donation, membership)
 }
 
 func (m *Memberships) createMembership(donation *iraiser.Donation, contactId int) (membership *civicrm.Membership, err error) {

@@ -1,20 +1,20 @@
-{
-  "donator": {
-    "email": "john.doe@wikimedia.fr",
-    "firstName": "John",
-    "lastName": "Doe",
-    "country": "FR"
-  },
-  "campaign": {
-    "affectationCode": "Adhésions iRaiser",
-    "originCode": "Adhésion CiviCRM"
-  },
-  "payment": {
-    "mode": "card",
-    "gatewayId": "cHubrefU6uC5"
-  },
-  "amount": 1200,
-  "currency": "EUR",
-  "reference": "WIKI20170101-1200-3000",
-  "validationDate": "2016-01-01T12:00:30Z"
-}
+[
+  {
+    "donator.email": "john@doe.fr",
+    "donator.firstName": "John-J\u00e9r\u00e9my",
+    "donator.lastName": "Doe",
+    "donator.pseudo": "Jdoe",
+    "donator.address": "25 rue du port",
+    "donator.city": "L\u00e9on",
+    "donator.postcode": "27400",
+    "donator.country": "FR",
+    "campaign.affectationCode": "",
+    "campaign.originCode": "",
+    "payment.mode": "card",
+    "payment.gatewayId": "9533016784",
+    "amount": "1200",
+    "currency": "EUR",
+    "reference": "WIKI20170210-1298-1387",
+    "validationDate": "2016-10-28T14:18:43+02:00"
+  }
+]

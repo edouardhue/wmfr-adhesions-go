@@ -3,54 +3,82 @@ package memberships
 import (
 	"github.com/wikimedia-france/wmfr-adhesions/iraiser"
 	"github.com/wikimedia-france/wmfr-adhesions/civicrm"
+	"github.com/wikimedia-france/wmfr-adhesions/internal"
 )
 
-func (m *Memberships) recordMembershipRenewal(donation *iraiser.Donation, contactId int) error {
-	memberships, err := m.crm.GetMembership(&civicrm.GetMembershipQuery{ContactId: contactId})
+
+func RecordMembership(donation *iraiser.Donation) error {
+	contactId, err := getContact(donation);
 	if err != nil {
-		return err
+		switch err.(type) {
+		case NoSuchContactError:
+			contactId, err := createContact(donation)
+			if err != nil {
+				return err
+			}
+			return recordNewMembership(donation, contactId)
+		default:
+			return err
+		}
 	}
-	membership, err := memberships.FindFirstByType(m.config.MembershipTypeId)
+	err = recordMembershipRenewal(donation, contactId);
 	if err != nil {
-		return &NoSuitableMembershipError{Mail: donation.Donator.Mail, ExpectedMembershipTypeId: m.config.MembershipTypeId}
+		switch err.(type) {
+		case NoSuitableMembershipError:
+			return recordNewMembership(donation, contactId)
+		default:
+			return err
+		}
 	}
-	err = m.recordContribution(donation, membership)
-	if err != nil {
-		return err
-	}
-	return m.renewMembership(donation, membership)
+	return nil
 }
 
-func (m *Memberships) recordNewMembership(donation *iraiser.Donation, contactId int) error {
-	membership, err := m.createMembership(donation, contactId)
+func recordMembershipRenewal(donation *iraiser.Donation, contactId int) error {
+	memberships, err := civicrm.GetMembership(&civicrm.GetMembershipQuery{ContactId: contactId})
 	if err != nil {
 		return err
 	}
-	return m.recordContribution(donation, membership)
+	membership, err := memberships.FindFirstByType(internal.Config.MembershipTypeId)
+	if err != nil {
+		return &NoSuitableMembershipError{Mail: donation.Donator.Mail, ExpectedMembershipTypeId: internal.Config.MembershipTypeId}
+	}
+	err = recordContribution(donation, membership)
+	if err != nil {
+		return err
+	}
+	return renewMembership(donation, membership)
 }
 
-func (m *Memberships) createMembership(donation *iraiser.Donation, contactId int) (membership *civicrm.Membership, err error) {
+func recordNewMembership(donation *iraiser.Donation, contactId int) error {
+	membership, err := createMembership(donation, contactId)
+	if err != nil {
+		return err
+	}
+	return recordContribution(donation, membership)
+}
+
+func createMembership(donation *iraiser.Donation, contactId int) (membership *civicrm.Membership, err error) {
 	membership = &civicrm.Membership{
 		ContactId: contactId,
 		EndDate: civicrm.Date{},
 		StartDate: civicrm.Date{Time: donation.ValidationDate},
 		JoinDate: civicrm.Date{Time: donation.ValidationDate},
 		StatusOverride: 1,
-		StatusId: m.config.MembershipStatusId,
+		StatusId: internal.Config.MembershipStatusId,
 		Terms: 1,
-		CampaignId: m.config.CampaignId,
+		CampaignId: internal.Config.CampaignId,
 	}
-	_, err = m.crm.CreateMembership(membership)
+	_, err = civicrm.CreateMembership(membership)
 	return
 }
 
-func (m *Memberships) renewMembership(donation *iraiser.Donation, membership *civicrm.Membership) error {
+func renewMembership(donation *iraiser.Donation, membership *civicrm.Membership) error {
 	membership.EndDate = civicrm.Date{}
 	membership.StartDate = civicrm.Date{Time: donation.ValidationDate}
 	membership.StatusOverride = 1
-	membership.StatusId = m.config.MembershipStatusId
+	membership.StatusId = internal.Config.MembershipStatusId
 	membership.Terms = 1
-	membership.CampaignId = m.config.CampaignId
-	_, err := m.crm.CreateMembership(membership)
+	membership.CampaignId = internal.Config.CampaignId
+	_, err := civicrm.CreateMembership(membership)
 	return err
 }

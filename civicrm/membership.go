@@ -26,22 +26,22 @@ type CreateMembershipResponse struct {
 	StatusResponse
 }
 
-func (c *CiviCRM) GetMembership(query *GetMembershipQuery) (response *GetMembershipResponse, _ error) {
+func GetMembership(query *GetMembershipQuery) (response *GetMembershipResponse, _ error) {
 	response = &GetMembershipResponse{}
-	req, err := c.buildQuery("Membership", "get", query)
+	req, err := buildQuery("Membership", "get", query)
 	if err != nil {
 		return nil, err
 	}
-	return response, c.query(response, req)
+	return response, execute(response, req)
 }
 
-func (c *CiviCRM) CreateMembership(membership *Membership) (response *CreateMembershipResponse, _ error) {
+func CreateMembership(membership *Membership) (response *CreateMembershipResponse, _ error) {
 	response = &CreateMembershipResponse{}
-	req, err := c.buildQuery("Membership", "create", membership)
+	req, err := buildQuery("Membership", "create", membership)
 	if err != nil {
 		return nil, err
 	}
-	return response, c.query(response, req)
+	return response, execute(response, req)
 }
 
 func (r *GetMembershipResponse) FindFirstByType(typeId int) (*Membership, error) {

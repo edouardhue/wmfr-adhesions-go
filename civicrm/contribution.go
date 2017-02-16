@@ -23,11 +23,11 @@ type CreateContributionResponse struct {
 	StatusResponse
 }
 
-func (c *CiviCRM) CreateContribution(contribution *Contribution) (response *CreateContributionResponse, _ error) {
+func CreateContribution(contribution *Contribution) (response *CreateContributionResponse, _ error) {
 	response = &CreateContributionResponse{}
-	req, err := c.buildQuery("Contribution", "create", contribution)
+	req, err := buildQuery("Contribution", "create", contribution)
 	if err != nil {
 		return nil, err
 	}
-	return response, c.query(response, req)
+	return response, execute(response, req)
 }

@@ -7,33 +7,28 @@ import (
 	"net/url"
 	"bytes"
 	"net/http/httputil"
+	"github.com/wikimedia-france/wmfr-adhesions/internal"
 )
 
-type CiviCRM struct {
-	client *http.Client
-	config *Config
+var client *http.Client
+
+func init() {
+	client = &http.DefaultClient
 }
 
-func NewCiviCRM(config *Config, client *http.Client) *CiviCRM {
-	return &CiviCRM{
-		client: client,
-		config: config,
-	}
-}
-
-func (c *CiviCRM) buildQuery(entity string, action string, query interface{}) (*http.Request, error) {
+func buildQuery(entity string, action string, query interface{}) (*http.Request, error) {
 	q := url.Values{}
 	q.Add("entity", entity)
 	q.Add("action", action)
-	q.Add("api_key", c.config.UserKey)
-	q.Add("key", c.config.SiteKey)
+	q.Add("api_key", internal.Config.CiviCRM.UserKey)
+	q.Add("key", internal.Config.CiviCRM.SiteKey)
 	if jsonQuery, err := json.Marshal(query); err != nil {
 		log.Println("Error marshalling query", err)
 	} else {
 		q.Add("json", string(jsonQuery))
 	}
 
-	req, err := http.NewRequest("POST", c.config.URL, bytes.NewBufferString(q.Encode()))
+	req, err := http.NewRequest("POST", internal.Config.CiviCRM.URL, bytes.NewBufferString(q.Encode()))
 	if err != nil {
 		log.Println("Error building query", err)
 		return req, err
@@ -44,9 +39,9 @@ func (c *CiviCRM) buildQuery(entity string, action string, query interface{}) (*
 	return req, nil
 }
 
-func (c *CiviCRM) query(response Status, req *http.Request) error {
+func execute(response Status, req *http.Request) error {
 	dump, _ := httputil.DumpRequestOut(req, true)
-	resp, err := c.client.Do(req)
+	resp, err := client.Do(req)
 	if err != nil {
 		log.Println("Error contacting CiviCRM", err)
 		return err

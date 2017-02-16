@@ -9,11 +9,11 @@ type CreateMembershipPaymentResponse struct {
 	StatusResponse
 }
 
-func (c *CiviCRM) CreateMembershipPayment(payment *MembershipPayment) (response *CreateMembershipPaymentResponse, _ error) {
+func CreateMembershipPayment(payment *MembershipPayment) (response *CreateMembershipPaymentResponse, _ error) {
 	response = &CreateMembershipPaymentResponse{}
-	req, err := c.buildQuery("MembershipPayment", "create", payment)
+	req, err := buildQuery("MembershipPayment", "create", payment)
 	if err != nil {
 		return nil, err
 	}
-	return response, c.query(response, req)
+	return response, execute(response, req)
 }

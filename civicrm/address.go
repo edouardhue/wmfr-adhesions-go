@@ -15,11 +15,11 @@ type CreateAddressResponse struct {
 	StatusResponse
 }
 
-func (c *CiviCRM) CreateAddress(address *Address) (response *CreateAddressResponse, _ error) {
+func CreateAddress(address *Address) (response *CreateAddressResponse, _ error) {
 	response = &CreateAddressResponse{}
-	req, err := c.buildQuery("Address", "create", address)
+	req, err := buildQuery("Address", "create", address)
 	if err != nil {
 		return nil, err
 	}
-	return response, c.query(response, req)
+	return response, execute(response, req)
 }

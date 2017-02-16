@@ -42,7 +42,7 @@ func init() {
 	}
 	fileinfo, err := os.Stat(location)
 	if err != nil {
-		fmt.Println("Cannot use configuration file, using defaults.", location, err)
+		fmt.Println("Cannot use configuration file, using defaults.", err)
 		Config = &Configuration{}
 		Config.CiviCRM = CiviCRMConfiguration{}
 		Config.IRaiser = IRaiserConfiguration{}

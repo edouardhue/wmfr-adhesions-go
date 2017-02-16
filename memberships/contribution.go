@@ -7,7 +7,10 @@ import (
 	"github.com/wikimedia-france/wmfr-adhesions/internal"
 )
 
-func recordContribution(donation *iraiser.Donation, membership *civicrm.Membership) error {
+var contributionCreator func(*civicrm.Contribution) (*civicrm.CreateContributionResponse, error) = civicrm.CreateContribution
+var membershipPaymentCreator func(*civicrm.MembershipPayment) (*civicrm.CreateMembershipPaymentResponse, error) = civicrm.CreateMembershipPayment
+
+func recordContribution(donation *iraiser.Donation, membership *civicrm.Membership) (*civicrm.Contribution, error) {
 	contribution := civicrm.Contribution{
 		ContactId: membership.ContactId,
 		FinancialTypeId: internal.Config.MembershipFinancialTypeId,
@@ -21,14 +24,14 @@ func recordContribution(donation *iraiser.Donation, membership *civicrm.Membersh
 		CampaignId: internal.Config.CampaignId,
 		StatusId: internal.Config.ContributionStatusId,
 	}
-	createReponse, err := civicrm.CreateContribution(&contribution)
+	createReponse, err := contributionCreator(&contribution)
 	if err != nil {
-		return err
+		return &civicrm.Contribution{}, err
 	}
 	payment := civicrm.MembershipPayment{
 		ContributionId: createReponse.Id,
 		MembershipId: membership.Id,
 	}
-	_, err = civicrm.CreateMembershipPayment(&payment)
-	return err
+	_, err = membershipPaymentCreator(&payment)
+	return &contribution, err
 }

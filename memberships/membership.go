@@ -42,7 +42,7 @@ func recordMembershipRenewal(donation *iraiser.Donation, contactId int) error {
 	if err != nil {
 		return &NoSuitableMembershipError{Mail: donation.Donator.Mail, ExpectedMembershipTypeId: internal.Config.MembershipTypeId}
 	}
-	err = recordContribution(donation, membership)
+	_, err = recordContribution(donation, membership)
 	if err != nil {
 		return err
 	}
@@ -54,7 +54,8 @@ func recordNewMembership(donation *iraiser.Donation, contactId int) error {
 	if err != nil {
 		return err
 	}
-	return recordContribution(donation, membership)
+	_, err = recordContribution(donation, membership)
+	return err
 }
 
 func createMembership(donation *iraiser.Donation, contactId int) (membership *civicrm.Membership, err error) {

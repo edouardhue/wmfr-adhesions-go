@@ -65,23 +65,30 @@ func TestCreateContact(t *testing.T) {
 	internal.Config.ContactTypeName = "human"
 	internal.Config.ContactSourceName = "iraiser"
 	internal.Config.LocationTypeId = rand.Int()
-	donation := iraiser.Donation{}
-	donation.Mail = "test@example.org"
-	donation.FirstName = "First"
-	donation.LastName = "Last"
-	donation.Pseudo = "Nick"
-	donation.StreetAddress = "Address"
-	donation.City = "City"
-	donation.PostalCode = "12345"
-	donation.Country = "CY"
-	donation.AffectationCode = "Aff"
-	donation.OriginCode = "Ori"
-	donation.Mode = "card"
-	donation.GatewayId = "6789"
-	donation.Amount = rand.Int()
-	donation.Currency = "CUR"
-	donation.Reference = "abcd"
-	donation.ValidationDate = validationDate
+	donation := iraiser.Donation{
+		Donator: iraiser.Donator{
+			Mail: "test@example.org",
+			FirstName: "First",
+			LastName: "Last",
+			Pseudo: "Nick",
+			StreetAddress: "Address",
+			City: "City",
+			PostalCode: "12345",
+			Country: "CY",
+		},
+		Campaign: iraiser.Campaign{
+			AffectationCode: "Aff",
+			OriginCode: "Ori",
+		},
+		Payment: iraiser.Payment{
+			Mode: "card",
+			GatewayId: "6789",
+		},
+		Amount: rand.Int(),
+		Currency: "CUR",
+		Reference: "abcd",
+		ValidationDate: validationDate,
+	}
 	contactCreator = func(contact *civicrm.Contact) (*civicrm.CreateContactResponse, error) {
 		assert.Equal(t, donation.Mail, contact.Mail, "Mail is propagated")
 		assert.Equal(t, donation.FirstName, contact.FirstName, "First name is propagated")
@@ -104,8 +111,8 @@ func TestCreateContact(t *testing.T) {
 		return &civicrm.CreateAddressResponse{}, nil
 	}
 	id, err := createContact(&donation)
-	assert.Equal(t, contactId, id, "Contact id is returned")
 	assert.NoError(t, err, "Result")
+	assert.Equal(t, contactId, id, "Contact id is returned")
 }
 
 func TestCreateContactWithCrmContactError(t *testing.T) {
@@ -118,8 +125,8 @@ func TestCreateContactWithCrmContactError(t *testing.T) {
 		return &civicrm.CreateAddressResponse{}, nil
 	}
 	id, err := createContact(&donation)
-	assert.Equal(t, 0, id, "No contact")
 	assert.Error(t, err, "Error")
+	assert.Equal(t, 0, id, "No contact")
 }
 
 func TestCreateContactWithCrmAddressError(t *testing.T) {
@@ -131,6 +138,6 @@ func TestCreateContactWithCrmAddressError(t *testing.T) {
 		return &civicrm.CreateAddressResponse{}, assert.AnError
 	}
 	id, err := createContact(&donation)
-	assert.Equal(t, 0, id, "No contact")
 	assert.Error(t, err, "Error")
+	assert.Equal(t, 0, id, "No contact")
 }

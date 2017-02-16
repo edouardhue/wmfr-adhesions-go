@@ -3,6 +3,7 @@ package internal
 import (
 	"os"
 	"gopkg.in/yaml.v2"
+	"fmt"
 )
 
 var Config *Configuration
@@ -41,7 +42,8 @@ func init() {
 	}
 	fileinfo, err := os.Stat(location)
 	if err != nil {
-		panic(err)
+		fmt.Errorf("Cannot use configuration file %s, using defaults.", location, err)
+		return
 	}
 	filesize := fileinfo.Size()
 	fp, err := os.Open(location)

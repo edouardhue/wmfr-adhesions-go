@@ -13,7 +13,7 @@ import (
 var client *http.Client
 
 func init() {
-	client = &http.DefaultClient
+	client = http.DefaultClient
 }
 
 func buildQuery(entity string, action string, query interface{}) (*http.Request, error) {

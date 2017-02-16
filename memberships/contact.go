@@ -6,11 +6,15 @@ import (
 	"github.com/wikimedia-france/wmfr-adhesions/internal"
 )
 
+var contactGetter func(*civicrm.GetContactQuery) (*civicrm.GetContactResponse, error) = civicrm.GetContact
+var contactCreator func(*civicrm.Contact) (*civicrm.CreateContactResponse, error) = civicrm.CreateContact
+var addressCreator func(*civicrm.Address) (*civicrm.CreateAddressResponse, error) = civicrm.CreateAddress
+
 func getContact(donation *iraiser.Donation) (int, error) {
 	query := civicrm.GetContactQuery{
 		Mail: donation.Donator.Mail,
 	}
-	searchResult, err := civicrm.GetContact(&query);
+	searchResult, err := contactGetter(&query);
 	if err != nil {
 		return 0, err
 	}
@@ -32,7 +36,7 @@ func createContact(donation *iraiser.Donation) (int, error) {
 		Pseudo: donation.Donator.Pseudo,
 		Source: internal.Config.ContactSourceName,
 	}
-	contactResp, err := civicrm.CreateContact(&contact)
+	contactResp, err := contactCreator(&contact)
 	if err != nil {
 		return 0, err
 	}
@@ -45,6 +49,6 @@ func createContact(donation *iraiser.Donation) (int, error) {
 		Country: donation.Donator.Country,
 		StreetParsing: 1,
 	}
-	_, err = civicrm.CreateAddress(&address)
+	_, err = addressCreator(&address)
 	return contactResp.Id, err
 }

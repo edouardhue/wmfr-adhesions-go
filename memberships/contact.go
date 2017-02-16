@@ -10,6 +10,8 @@ var contactGetter func(*civicrm.GetContactQuery) (*civicrm.GetContactResponse, e
 var contactCreator func(*civicrm.Contact) (*civicrm.CreateContactResponse, error) = civicrm.CreateContact
 var addressCreator func(*civicrm.Address) (*civicrm.CreateAddressResponse, error) = civicrm.CreateAddress
 
+const streetParsing = 1
+
 func getContact(donation *iraiser.Donation) (int, error) {
 	query := civicrm.GetContactQuery{
 		Mail: donation.Donator.Mail,
@@ -47,7 +49,7 @@ func createContact(donation *iraiser.Donation) (int, error) {
 		City: donation.Donator.City,
 		PostalCode: donation.Donator.PostalCode,
 		Country: donation.Donator.Country,
-		StreetParsing: 1,
+		StreetParsing: streetParsing,
 	}
 	_, err = addressCreator(&address)
 	return contactResp.Id, err

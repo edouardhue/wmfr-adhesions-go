@@ -42,7 +42,10 @@ func init() {
 	}
 	fileinfo, err := os.Stat(location)
 	if err != nil {
-		fmt.Errorf("Cannot use configuration file %s, using defaults.", location, err)
+		fmt.Println("Cannot use configuration file, using defaults.", location, err)
+		Config = &Configuration{}
+		Config.CiviCRM = CiviCRMConfiguration{}
+		Config.IRaiser = IRaiserConfiguration{}
 		return
 	}
 	filesize := fileinfo.Size()

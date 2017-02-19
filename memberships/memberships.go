@@ -39,8 +39,7 @@ func recordNewContactMembership(donation *iraiser.Donation) (*civicrm.Membership
 	if err != nil {
 		return &civicrm.Membership{}, err
 	}
-	membership, err := recordNewMembership(donation, contactId)
-	return membership, err
+	return recordNewMembership(donation, contactId)
 }
 
 func recordMembershipRenewal(donation *iraiser.Donation, contactId int) (*civicrm.Membership, error) {
@@ -79,7 +78,8 @@ func createMembership(donation *iraiser.Donation, contactId int) (*civicrm.Membe
 		Terms: Terms,
 		CampaignId: internal.Config.CampaignId,
 	}
-	_, err := membershipCreator(membership)
+	resp, err := membershipCreator(membership)
+	membership.Id = resp.Id
 	return membership, err
 }
 

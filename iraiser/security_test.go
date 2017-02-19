@@ -2,7 +2,6 @@ package iraiser
 
 import (
 	"testing"
-	"github.com/wikimedia-france/wmfr-adhesions/memberships"
 	"github.com/wikimedia-france/wmfr-adhesions/internal"
 )
 
